@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CEA201 Chapter 1 - Interactive MCQ Quiz</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #e0f2fe, #f8fafc);
+      color: #0f172a;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+      color: white;
+      text-align: center;
+      padding: 36px 16px;
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: 34px;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 0 18px 45px;
+    }
+
+    .summary {
+      background: white;
+      border-radius: 16px;
+      padding: 18px 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .summary strong { color: #2563eb; }
+
+    .reset-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.2s;
+    }
+
+    .reset-btn:hover { background: #1d4ed8; }
+
+    .section-title {
+      margin: 32px 0 18px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      color: white;
+      font-size: 21px;
+      background: linear-gradient(135deg, #0f766e, #2563eb);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.15);
+    }
+
+    .question-card {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 22px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      border-left: 7px solid #2563eb;
+    }
+
+    .question-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      line-height: 1.55;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e0e7ff;
+      color: #3730a3;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .option-btn {
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      padding: 14px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      text-align: left;
+      transition: 0.2s;
+      min-height: 58px;
+      line-height: 1.45;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: #2563eb;
+      transform: translateY(-2px);
+      background: #eff6ff;
+    }
+
+    .option-btn.correct {
+      background: #dcfce7;
+      border-color: #16a34a;
+      color: #14532d;
+      font-weight: bold;
+    }
+
+    .option-btn.wrong {
+      background: #fee2e2;
+      border-color: #dc2626;
+      color: #7f1d1d;
+      font-weight: bold;
+    }
+
+    .option-btn:disabled { cursor: not-allowed; }
+
+    .explanation {
+      display: none;
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      border-left: 5px solid #7c3aed;
+      line-height: 1.7;
+    }
+
+    .explanation.show { display: block; }
+
+    .answer-label {
+      font-weight: bold;
+      color: #16a34a;
+      margin-bottom: 8px;
+    }
+
+    footer {
+      text-align: center;
+      color: #475569;
+      padding: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .options { grid-template-columns: 1fr; }
+      header h1 { font-size: 26px; }
+      .summary { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CEA201 Chapter 1 - Interactive MCQ Quiz</h1>
+    <p>60 multiple choice questions based on the uploaded PDF</p>
+  </header>
+
+  <main class="container">
+    <section class="summary">
+      <div>
+        Answered: <strong id="answeredCount">0</strong>/60<br />
+        Score: <strong id="score">0</strong>/60
+      </div>
+      <button class="reset-btn" id="resetBtn">Restart Quiz</button>
+    </section>
+
+    <div id="quiz"></div>
+  </main>
+
+  <footer>Click an option to check your answer. Correct answers turn green; wrong answers turn red.</footer>
+
+  <script>
+    const questions = [
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"What is a system?", options:["A software package","An assemblage of related parts with an operating mechanism","A storage device","A random circuit"], answer:1, exp:"A system is made from related parts working together through an operating mechanism."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"A hierarchical system is a system in which:", options:["All parts are equal","Parts have no levels","Each part has a level","Components are unrelated"], answer:2, exp:"A hierarchical system has levels, so each part belongs to a certain level."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which statement best describes a module?", options:["A programming language","A specific component with its own function","A data bus","A network cable"], answer:1, exp:"A module is a component that performs its own specific function."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Modularity refers to:", options:["System security","Data encryption","The separation and recombination of components","Internet connection"], answer:2, exp:"Modularity means components can be separated and recombined to form a system."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Computer architecture is mainly visible to:", options:["Hardware manufacturers","Electricians","Programmers","Designers only"], answer:2, exp:"Architecture includes attributes visible to programmers, such as the instruction set."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which of the following is an architectural attribute?", options:["Control signals","Instruction set","Memory hardware","Bus wiring"], answer:1, exp:"The instruction set is part of computer architecture because it affects how programs are written and executed."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which of the following belongs to computer organization?", options:["I/O mechanisms","Addressing techniques","Memory technology","Number of bits used for data"], answer:2, exp:"Memory technology is an implementation detail, so it belongs to computer organization."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Computer organization refers to:", options:["Program syntax","Operational units and their interconnections","User interface design","Software development"], answer:1, exp:"Organization is about operational units and how they are connected."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which item directly affects the logical execution of a program?", options:["Architecture","Cooling system","Hardware size","Bus speed only"], answer:0, exp:"Architecture affects the logical execution of programs because it defines programmer-visible features."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which statement is TRUE?", options:["Architecture and organization are the same","Architecture concerns hardware details invisible to programmers","Organization realizes architectural specifications","Organization is unrelated to hardware"], answer:2, exp:"Organization is the way architectural specifications are implemented in hardware."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which is NOT an architectural attribute?", options:["Instruction set","I/O mechanisms","Memory addressing","Control signals"], answer:3, exp:"Control signals are organizational details, not architectural attributes."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which is an organizational attribute?", options:["Number of bits for characters","Memory technology","Instruction set","Addressing modes"], answer:1, exp:"Memory technology is a hardware implementation detail, so it belongs to organization."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"IBM System/370 was introduced in:", options:["1960","1970","1980","1990"], answer:1, exp:"The PDF states that IBM System/370 was introduced in 1970."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"IBM System/370 allowed customers to:", options:["Replace all software after upgrades","Upgrade hardware while keeping software","Use only one model","Avoid using memory"], answer:1, exp:"It allowed hardware upgrades while preserving software compatibility."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which viewpoint focuses on “consumer view”?", options:["System organization","System structure","Hardware engineering","Manufacturing"], answer:1, exp:"The consumer view focuses on system structure, which is what users or programmers observe."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which viewpoint focuses on “producer view”?", options:["System organization","System structure","Software design","Application layer"], answer:0, exp:"The producer view focuses on organization, meaning how the system is built and connected."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which term describes the way components are connected and built?", options:["Architecture","Organization","Programming","Compilation"], answer:1, exp:"Organization describes how components are connected and implemented."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"What is the main purpose of modularity?", options:["Reduce monitor size","Support industrial production","Increase screen resolution","Improve typing speed"], answer:1, exp:"Modularity supports production by allowing systems to be built from reusable components."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which example belongs to hardware view?", options:["Instruction set","Control signals","Logical execution","Addressing technique"], answer:1, exp:"Control signals are hardware-level implementation details."},
+      {section:"Part 1: Definitions & Organization vs Architecture", q:"Which example belongs to software view?", options:["Memory technology","Interfaces between peripherals","Instruction set","Control signals"], answer:2, exp:"The instruction set is visible to software and programmers."},
+
+      {section:"Part 2: Structure and Function", q:"A computer is considered a:", options:["Simple device","Hierarchical system","Mechanical machine only","Peripheral device"], answer:1, exp:"A computer is a hierarchical system because it contains components organized at different levels."},
+      {section:"Part 2: Structure and Function", q:"Structure refers to:", options:["The operation of components","The relationship among components","Data processing","Memory access only"], answer:1, exp:"Structure means the relationship among components."},
+      {section:"Part 2: Structure and Function", q:"Function refers to:", options:["Hardware appearance","System size","The operation of components","Network speed"], answer:2, exp:"Function describes what components do or how they operate."},
+      {section:"Part 2: Structure and Function", q:"Which approach is clearer for describing computer systems?", options:["Bottom-up","Random approach","Top-down","Reverse approach"], answer:2, exp:"The top-down approach is clearer because it starts from the whole system and then explains details."},
+      {section:"Part 2: Structure and Function", q:"How many basic computer functions are introduced in the chapter?", options:["2","3","4","5"], answer:2, exp:"The chapter introduces four basic functions: processing, storage, movement, and control."},
+      {section:"Part 2: Structure and Function", q:"Which is NOT a basic computer function?", options:["Data processing","Data movement","Data mining","Control"], answer:2, exp:"Data mining is not one of the four basic computer functions listed in the chapter."},
+      {section:"Part 2: Structure and Function", q:"Which function manipulates data?", options:["Data storage","Data processing","Data movement","Control"], answer:1, exp:"Data processing manipulates or transforms data."},
+      {section:"Part 2: Structure and Function", q:"Which function keeps data temporarily or permanently?", options:["Control","Processing","Data storage","Data communication"], answer:2, exp:"Data storage keeps data either temporarily or permanently."},
+      {section:"Part 2: Structure and Function", q:"Which function transfers data between computer and external devices?", options:["Data movement","Control","Processing","Storage"], answer:0, exp:"Data movement transfers data between the computer and external devices."},
+      {section:"Part 2: Structure and Function", q:"Which function manages computer resources?", options:["Storage","Control","Processing","Communication"], answer:1, exp:"Control manages and coordinates computer resources."},
+      {section:"Part 2: Structure and Function", q:"Input–Output (I/O) belongs to:", options:["Data movement","Data storage","Data encryption","Data analysis"], answer:0, exp:"I/O is about moving data into and out of the computer."},
+      {section:"Part 2: Structure and Function", q:"A peripheral is:", options:["An internal CPU register","A directly connected external device","A memory address","A software application"], answer:1, exp:"A peripheral is an external device directly connected to the computer."},
+      {section:"Part 2: Structure and Function", q:"Data communication refers to:", options:["Data storage","Data movement over long distances","CPU processing","Hardware repair"], answer:1, exp:"Data communication is data movement over long distances."},
+      {section:"Part 2: Structure and Function", q:"Which function is involved when saving files?", options:["Control","Data movement","Data storage","Decoding"], answer:2, exp:"Saving files stores data, so it is data storage."},
+      {section:"Part 2: Structure and Function", q:"Which function is involved when calculating X + Y?", options:["Data storage","Data processing","Control only","Data communication"], answer:1, exp:"Calculating X + Y manipulates data, so it is data processing."},
+      {section:"Part 2: Structure and Function", q:"Which function is involved when displaying output on monitor?", options:["Data movement","Storage","Encryption","Decoding"], answer:0, exp:"Displaying output moves data from the computer to an output device."},
+      {section:"Part 2: Structure and Function", q:"The control unit mainly:", options:["Draws graphics","Coordinates system operations","Expands storage","Repairs hardware"], answer:1, exp:"The control unit coordinates and controls system operations."},
+      {section:"Part 2: Structure and Function", q:"Which operation simply transfers data from one device to another?", options:["Data processing","Data movement","Data storage","Control"], answer:1, exp:"Transferring data from one device to another is data movement."},
+      {section:"Part 2: Structure and Function", q:"Which operation stores data from external environment into memory?", options:["Read operation","Decode operation","Execute operation","Compression"], answer:0, exp:"A read operation brings data from the external environment into memory."},
+      {section:"Part 2: Structure and Function", q:"Which statement about hierarchical systems is TRUE?", options:["They simplify system design","They remove all modules","They eliminate memory","They prevent communication"], answer:0, exp:"Hierarchical systems simplify design by organizing parts into levels."},
+
+      {section:"Part 3: Computer Structure & CPU Components", q:"A computer has how many main structural components?", options:["2","3","4","5"], answer:2, exp:"The four main structural components are CPU, main memory, I/O, and system interconnection."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which component controls computer operations?", options:["Main memory","CPU","Keyboard","Monitor"], answer:1, exp:"The CPU controls computer operations and processes data."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which component stores data?", options:["ALU","Main memory","Decoder","Bus"], answer:1, exp:"Main memory stores data and instructions."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which component moves data between computer and external environment?", options:["CPU","ALU","I/O","Registers"], answer:2, exp:"I/O moves data between the computer and the external environment."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"System interconnection provides:", options:["Video editing","Communication among components","Internet browsing","Cooling system"], answer:1, exp:"System interconnection allows computer components to communicate."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"A common example of system interconnection is:", options:["Keyboard","Monitor","System bus","Mouse"], answer:2, exp:"A system bus is a common interconnection structure."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"A bus consists of:", options:["Registers only","Conducting wires connecting components","Cooling fans","Programs"], answer:1, exp:"A bus consists of conducting paths or wires connecting components."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which CPU component performs calculations and logic operations?", options:["Registers","ALU","Control unit","Decoder"], answer:1, exp:"The ALU performs arithmetic and logic operations."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"ALU stands for:", options:["Arithmetic Logic Unit","Automatic Link Utility","Advanced Logical Usage","Arithmetic Linear Unit"], answer:0, exp:"ALU means Arithmetic Logic Unit."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which CPU component controls CPU operations?", options:["Registers","ALU","Control unit","Bus"], answer:2, exp:"The control unit controls operations inside the CPU."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Registers provide:", options:["External storage","Internal CPU storage","Network access","Graphic processing"], answer:1, exp:"Registers are small, fast storage locations inside the CPU."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"CPU interconnection provides communication among:", options:["Monitor and keyboard","ALU, registers, and control unit","RAM and printer only","Speakers and storage"], answer:1, exp:"CPU interconnection links internal CPU parts such as ALU, registers, and control unit."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which component decodes instructions?", options:["ALU","Decoder","Bus","Register"], answer:1, exp:"The decoder interprets or decodes instructions."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Sequencing logic is responsible for:", options:["Increasing RAM size","Determining the next instruction address","Cooling the CPU","Encrypting data"], answer:1, exp:"Sequencing logic determines the next instruction address."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Control memory mainly supports:", options:["Memory access control","Internet access","Display resolution","Sound processing"], answer:0, exp:"Control memory supports memory access control in the control unit."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which statement about CPU is TRUE?", options:["CPU only stores data","CPU controls operations and processes data","CPU is an input device","CPU replaces memory"], answer:1, exp:"The CPU both controls operations and processes data."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which component is part of CPU structure?", options:["Keyboard","Mouse","Registers","Printer"], answer:2, exp:"Registers are part of the CPU structure."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which component is NOT part of CPU structure?", options:["ALU","Registers","Control unit","Monitor"], answer:3, exp:"The monitor is an output device, not an internal CPU component."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Internal bus is used to:", options:["Connect CPU internal components","Connect internet cables","Increase monitor speed","Store files permanently"], answer:0, exp:"The internal bus connects components inside the CPU."},
+      {section:"Part 3: Computer Structure & CPU Components", q:"Which component performs arithmetic operations such as addition and subtraction?", options:["Control unit","ALU","Registers","Main memory"], answer:1, exp:"The ALU performs arithmetic operations such as addition and subtraction."}
+    ];
+
+    let answered = 0;
+    let score = 0;
+    let userAnswered = [];
+
+    function renderQuiz() {
+      const quiz = document.getElementById("quiz");
+      quiz.innerHTML = "";
+      userAnswered = new Array(questions.length).fill(false);
+      let currentSection = "";
+
+      questions.forEach(function(item, index) {
+        if (item.section !== currentSection) {
+          currentSection = item.section;
+          const sectionTitle = document.createElement("h2");
+          sectionTitle.className = "section-title";
+          sectionTitle.textContent = currentSection;
+          quiz.appendChild(sectionTitle);
+        }
+
+        const card = document.createElement("div");
+        card.className = "question-card";
+
+        const badge = document.createElement("div");
+        badge.className = "badge";
+        badge.textContent = "Question " + (index + 1);
+        card.appendChild(badge);
+
+        const title = document.createElement("div");
+        title.className = "question-title";
+        title.textContent = (index + 1) + ". " + item.q;
+        card.appendChild(title);
+
+        const options = document.createElement("div");
+        options.className = "options";
+
+        item.options.forEach(function(option, optionIndex) {
+          const button = document.createElement("button");
+          button.className = "option-btn";
+          button.innerHTML = "<strong>" + String.fromCharCode(65 + optionIndex) + ".</strong> " + option;
+          button.addEventListener("click", function() {
+            checkAnswer(index, optionIndex, button);
+          });
+          options.appendChild(button);
+        });
+
+        card.appendChild(options);
+
+        const explanation = document.createElement("div");
+        explanation.className = "explanation";
+        explanation.id = "explanation-" + index;
+        explanation.innerHTML =
+          "<div class='answer-label'>Correct answer: " + String.fromCharCode(65 + item.answer) + ". " + item.options[item.answer] + "</div>" +
+          "<div>Explanation: " + item.exp + "</div>";
+        card.appendChild(explanation);
+
+        quiz.appendChild(card);
+      });
+    }
+
+    function checkAnswer(questionIndex, selectedIndex, selectedButton) {
+      if (userAnswered[questionIndex]) return;
+
+      const item = questions[questionIndex];
+      const card = selectedButton.closest(".question-card");
+      const buttons = card.querySelectorAll(".option-btn");
+      const explanation = document.getElementById("explanation-" + questionIndex);
+
+      userAnswered[questionIndex] = true;
+      answered++;
+
+      if (selectedIndex === item.answer) {
+        selectedButton.classList.add("correct");
+        score++;
+      } else {
+        selectedButton.classList.add("wrong");
+        buttons[item.answer].classList.add("correct");
+      }
+
+      buttons.forEach(function(btn) {
+        btn.disabled = true;
+      });
+
+      explanation.classList.add("show");
+      document.getElementById("answeredCount").textContent = answered;
+      document.getElementById("score").textContent = score;
+    }
+
+    function resetQuiz() {
+      answered = 0;
+      score = 0;
+      document.getElementById("answeredCount").textContent = "0";
+      document.getElementById("score").textContent = "0";
+      renderQuiz();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("resetBtn").addEventListener("click", resetQuiz);
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>
